@@ -53,7 +53,7 @@ for x=-1, 1 do for z=-1, 1 do
 			},
 		},
 		groups = groups,
-		drop = drop,
+		drop = "mesecons_insulated:insulated_off",
 	})
 end end
 
@@ -120,6 +120,10 @@ mesecon:register_on_signal_change(function(pos, node)
 	end
 end)
 
+---automatic crossing---
+
+
+--[[
 minetest.register_craft({
 	type = "shapeless",
 	output = "mesecons_extrawires:crossing",
@@ -136,3 +140,131 @@ minetest.register_craft({
 		"mesecons_extrawires:crossing",
 	},
 })
+--]]
+
+function can_link(frompos, topos)
+	local k = 1
+	fromnode = minetest.env:get_node(frompos)
+	rules = {}
+	if mesecon:is_conductor(fromnode.name) then
+		rules = mesecon:conductor_get_rules(fromnode)
+		print("A")
+	elseif mesecon:is_receptor_node(fromnode.name) or
+	mesecon:is_receptor_node_off(fromnode.name) then
+		rules = mesecon:receptor_get_rules(fromnode)
+		print("B")
+	elseif mesecon:is_effector(fromnode.name) then
+		rules = mesecon:effector_get_input_rules(fromnode)
+		print("C")
+	else
+		print("D")
+		return false
+	end
+	--if rules ~= {} then
+		for k, rule in ipairs(rules) do
+			if  frompos.x + rule.x == topos.x
+			and frompos.y + rule.y == topos.y
+			and frompos.z + rule.z == topos.z then
+					return true
+			end
+		end
+	--end
+	return false
+end
+
+function get_possible_port_connections(pos)
+	rulesA = mesecon:get_rules("mesecons_microcontroller:microcontroller0001")
+	rulesB = mesecon:get_rules("mesecons_microcontroller:microcontroller0010")
+	rulesC = mesecon:get_rules("mesecons_microcontroller:microcontroller0100")
+	rulesD = mesecon:get_rules("mesecons_microcontroller:microcontroller1000")
+	L = {
+		a = can_link({x=pos.x+rulesA[1].x, y=pos.y+rulesA[1].y, z=pos.z+rulesA[1].z}, pos),
+		b = can_link({x=pos.x+rulesB[1].x, y=pos.y+rulesB[1].y, z=pos.z+rulesB[1].z}, pos),
+		c = can_link({x=pos.x+rulesC[1].x, y=pos.y+rulesC[1].y, z=pos.z+rulesC[1].z}, pos),
+		d = can_link({x=pos.x+rulesD[1].x, y=pos.y+rulesD[1].y, z=pos.z+rulesD[1].z}, pos),
+	}
+	return L
+end
+
+function spread_crossing(pos, placer)
+	update_crossing({x=pos.x-1, y=pos.y, z=pos.z}, placer)
+	update_crossing({x=pos.x, y=pos.y, z=pos.z+1}, placer)
+	update_crossing({x=pos.x+1, y=pos.y, z=pos.z}, placer)
+	update_crossing({x=pos.x, y=pos.y, z=pos.z-1}, placer)
+end
+
+function posprint(pos)
+	--if pos.x ~= nil and pos.y ~= nil and pos.z ~= nil then
+		print("("..pos.x..", "..pos.y..", "..pos.z..")")
+	--end
+end
+
+function update_crossing(pos, placer)
+	name = minetest.env:get_node(pos).name
+	posprint(pos)
+	if string.find(name, "mesecons_insulated:insulated_")==nil and
+		name ~= "mesecons_extrawires:crossing" then return
+	end
+	--[[
+	N = {}
+	N.pos = {
+		a = {pos.x-1, pos.y, pos.z},
+		b = {pos.x, pos.y, pos.z+1},
+		c = {pos.x+1, pos.y, pos.z},
+		d = {pos.x, pos.y, pos.z-1},
+	}
+	N.node = {
+		a = minetest.env:get_node(N.pos.a),
+		b = minetest.env:get_node(N.pos.b),
+		c = minetest.env:get_node(N.pos.c),
+		d = minetest.env:get_node(N.pos.d),
+	}
+	--]]
+	L = get_possible_port_connections(pos)
+	print((L.a and 1 or 0)..(L.b and 1 or 0)..(L.c and 1 or 0)..(L.d and 1 or 0))
+	L.num = (L.a and 1 or 0) + (L.b and 1 or 0) + (L.c and 1 or 0) + (L.d and 1 or 0)
+	L.x = L.a or L.c
+	L.z = L.b or L.d
+	if L.num >= 3 then
+		if string.find(name, "mesecons_insulated:insulated_")~=nil then
+			--if has_wire then
+			minetest.env:add_node(pos, {name = "mesecons_extrawires:crossing"})
+			spread_crossing(pos, placer)
+			--end
+		end
+	elseif name == "mesecons_extrawires:crossing" then
+		if L.a or L.c then
+			param2 = 0
+		else
+			param2 = 1
+		end
+		minetest.env:add_node(pos, {name = "mesecons_insulated:insulated_off", param2 = param2})
+		spread_crossing(pos, placer)
+	end
+end
+--[[
+insulated_on = minetest.registered_nodes["mesecons_insulated:insulated_on"]
+insulated_off = minetest.registered_nodes["mesecons_insulated:insulated_off"]
+insulated_on.
+minetest.register_on_punchnode(function(pos, node, puncher)
+	if string.find(node.name, "mesecons_insulated:insulated_") == nil then
+		return
+	end
+	if puncher:get_wielded_item():get_name() ~= "mesecons_insulated:insulated_off" then
+		return
+	end
+	minetest.env:add_node(pos, {name = "mesecons_extrawires:crossing"})
+end)
+--]]
+minetest.register_on_placenode(function(pos, newnode, placer, oldnode)
+	if minetest.get_item_group(newnode.name, "mesecon") > 1 then
+		update_crossing(pos, placer)
+		spread_crossing(pos, placer)
+	end
+end)
+minetest.register_on_dignode(function(pos, oldnode, digger)
+	if minetest.get_item_group(oldnode.name, "mesecon") > 1 then
+		spread_crossing(pos, digger)
+	end
+end)
+
