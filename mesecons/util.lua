@@ -14,8 +14,21 @@ function mesecon:move_node(pos, newpos)
 	minetest.env:get_meta(pos):from_table(meta)
 end
 
+function mesecon:rulepairs(rules)
+	print("mesecon:rulepairs")
+	shallowrules = {}
+	for _,metarule in ipairs(rules) do
+		if metarule.x then
+			table.insert(shallowrules,metarule)
+		else for _,rule in ipairs(metarule) do
+			table.insert(shallowrules,rule)
+		end end
+	end
+	return ipairs(shallowrules)
+end
 
 function mesecon:addPosRule(p, r)
+	print("mesecon:addPosRule")
 	return {x = p.x + r.x, y = p.y + r.y, z = p.z + r.z}
 end
 

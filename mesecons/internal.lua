@@ -381,7 +381,8 @@ function mesecon:turnon(pos, rulename)
 		local rules = mesecon:conductor_get_rules(node)
 		minetest.env:add_node(pos, {name = mesecon:get_conductor_on(node.name), param2 = node.param2})
 
-		for _, rule in ipairs(rules) do
+		for _, rule in mesecon:rulepairs(rules) do
+			print("mesecon:turnon addPosRule")
 			local np = mesecon:addPosRule(pos, rule)
 			local link, rulename = mesecon:rules_link(pos, np)
 
@@ -404,7 +405,8 @@ function mesecon:turnoff(pos, rulename)
 		local rules = mesecon:conductor_get_rules(node)
 		minetest.env:add_node(pos, {name = mesecon:get_conductor_off(node.name), param2 = node.param2})
 
-		for _, rule in ipairs(rules) do
+		for _, rule in mesecon:rulepairs(rules) do
+			print("mesecon:turnoff addPosRule")
 			local np = mesecon:addPosRule(pos, rule)
 			local link, rulename = mesecon:rules_link(pos, np)
 
@@ -429,7 +431,8 @@ function mesecon:connected_to_receptor(pos)
 	local rules = mesecon:get_any_inputrules(node)
 	if not rules then return false end
 
-	for _, rule in ipairs(rules) do
+	for _, rule in mesecon:rulepairs(rules) do
+		print("mesecon:connected_to_receptor addPosRule")
 		local np = mesecon:addPosRule(pos, rule)
 		if mesecon:rules_link(np, pos) then
 			if mesecon:find_receptor_on(np, {}) then
@@ -443,7 +446,7 @@ end
 
 function mesecon:find_receptor_on(pos, checked)
 	-- find out if node has already been checked (to prevent from endless loop)
-	for _, cp in ipairs(checked) do
+	for _, cp in mesecon:rulepairs(checked) do
 		if mesecon:cmpPos(cp, pos) then
 			return false, checked
 		end
@@ -459,7 +462,8 @@ function mesecon:find_receptor_on(pos, checked)
 
 	if mesecon:is_conductor(node.name) then
 		local rules = mesecon:conductor_get_rules(node)
-		for _, rule in ipairs(rules) do
+		for _, rule in mesecon:rulepairs(rules) do
+			print("mesecon:find_receptor_on addPosRule")
 			local np = mesecon:addPosRule(pos, rule)
 			if mesecon:rules_link(np, pos) then
 				if mesecon:find_receptor_on(np, checked) then
@@ -481,11 +485,13 @@ function mesecon:rules_link(output, input, dug_outputrules) --output/input are p
 		return
 	end
 
-	for _, outputrule in ipairs(outputrules) do
+	for _, outputrule in mesecon:rulepairs(outputrules) do
 		-- Check if output sends to input
+		print("mesecon:rules_link addPosRule 1")
 		if mesecon:cmpPos(mesecon:addPosRule(output, outputrule), input) then
-			for _, inputrule in ipairs(inputrules) do
+			for _, inputrule in mesecon:rulepairs(inputrules) do
 				-- Check if input accepts from output
+				print("mesecon:rules_link addPosRule 2")
 				if  mesecon:cmpPos(mesecon:addPosRule(input, inputrule), output) then
 					return true, inputrule
 				end
@@ -503,8 +509,8 @@ function mesecon:is_powered(pos)
 	local node = minetest.env:get_node(pos)
 	local rules = mesecon:get_any_inputrules(node)
 	if not rules then return false end
-
-	for _, rule in ipairs(rules) do
+	print("mesecon:is_powered")
+	for _, rule in mesecon:rulepairs(rules) do
 		local np = mesecon:addPosRule(pos, rule)
 		local nn = minetest.env:get_node(np)
 

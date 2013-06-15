@@ -14,6 +14,13 @@ local crossing_get_rules = function(node)
 	}
 end
 
+local crossing_states = {
+	"mesecons_extrawires:crossing_off",
+	"mesecons_extrawires:crossing_10",
+	"mesecons_extrawires:crossing_01",
+	"mesecons_extrawires:crossing_on",
+}
+
 minetest.register_node("mesecons_extrawires:crossing_off", {
 	drawtype = "nodebox",
 	tiles = {"jeija_insulated_wire_sides_off.png"},
@@ -36,8 +43,8 @@ minetest.register_node("mesecons_extrawires:crossing_off", {
 	mesecons = {
 		conductor = {
 			state = mesecon.state.off,
-			lostate = "mesecons_extrawires:crossing_10",
-			olstate = "mesecons_extrawires:crossing_01",
+			states = crossing_states,
+			onstate = "mesecons_extrawires:crossing_on",
 			rules = crossing_get_rules,
 		}
 	},
@@ -65,9 +72,9 @@ minetest.register_node("mesecons_extrawires:crossing_10", {
 	groups = {dig_immediate=3, mesecon=3, mesecon_conductor_craftable=1, not_in_creative_inventory=1},
 	mesecons = {
 		conductor = {
-			offstate = "mesecons_extrawires:crossing_off",
-			state = mesecon.state.lo,
-			onstate = "mesecons_extrawires:crossing_on",
+			--state = mesecon.state.lo,
+			state = {false, true},
+			states = crossing_states,
 			rules = crossing_get_rules,
 		}
 	},
@@ -95,9 +102,9 @@ minetest.register_node("mesecons_extrawires:crossing_01", {
 	groups = {dig_immediate=3, mesecon=3, mesecon_conductor_craftable=1, not_in_creative_inventory=1},
 	mesecons = {
 		conductor = {
-			offstate = "mesecons_extrawires:crossing_off",
-			state = mesecon.state.ol,
-			onstate = "mesecons_extrawires:crossing_on",
+			--state = mesecon.state.ol,
+			state = {true, false},
+			states = crossing_states,
 			rules = crossing_get_rules,
 		}
 	},
@@ -125,9 +132,9 @@ minetest.register_node("mesecons_extrawires:crossing_on", {
 	groups = {dig_immediate=3, mesecon=3, mesecon_conductor_craftable=1, not_in_creative_inventory=1},
 	mesecons = {
 		conductor = {
-			lostate = "mesecons_extrawires:crossing_10",
-			olstate = "mesecons_extrawires:crossing_01",
 			state = mesecon.state.on,
+			states = crossing_states,
+			offstate = "mesecons_extrawires:crossing_off",
 			rules = crossing_get_rules,
 		}
 	},
