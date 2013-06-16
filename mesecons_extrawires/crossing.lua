@@ -42,9 +42,9 @@ minetest.register_node("mesecons_extrawires:crossing_off", {
 	groups = {dig_immediate=3, mesecon=3, mesecon_conductor_craftable=1},
 	mesecons = {
 		conductor = {
-			state = mesecon.state.off,
+			--state = mesecon.state.off,
 			states = crossing_states,
-			onstate = "mesecons_extrawires:crossing_on",
+			--onstate = "mesecons_extrawires:crossing_on",
 			rules = crossing_get_rules,
 		}
 	},
@@ -73,7 +73,7 @@ minetest.register_node("mesecons_extrawires:crossing_10", {
 	mesecons = {
 		conductor = {
 			--state = mesecon.state.lo,
-			state = {false, true},
+			--state = {false, true},
 			states = crossing_states,
 			rules = crossing_get_rules,
 		}
@@ -103,7 +103,7 @@ minetest.register_node("mesecons_extrawires:crossing_01", {
 	mesecons = {
 		conductor = {
 			--state = mesecon.state.ol,
-			state = {true, false},
+			--state = {true, false},
 			states = crossing_states,
 			rules = crossing_get_rules,
 		}
@@ -132,9 +132,9 @@ minetest.register_node("mesecons_extrawires:crossing_on", {
 	groups = {dig_immediate=3, mesecon=3, mesecon_conductor_craftable=1, not_in_creative_inventory=1},
 	mesecons = {
 		conductor = {
-			state = mesecon.state.on,
+			--state = mesecon.state.on,
 			states = crossing_states,
-			offstate = "mesecons_extrawires:crossing_off",
+			--offstate = "mesecons_extrawires:crossing_off",
 			rules = crossing_get_rules,
 		}
 	},

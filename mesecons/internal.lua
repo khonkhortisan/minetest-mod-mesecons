@@ -303,20 +303,19 @@ end
 
 -- Conductors
 
-function mesecon:is_conductor_on(nodename)
+function mesecon:is_conductor_on(nodename, metanum)
 	local conductor = mesecon:get_conductor(nodename)
-	if conductor and conductor.state == mesecon.state.on then
-		return true
+	if conductor then
+		if conductor.state then
+			return conductor.state == mesecon.state.on
+		end
+		return mesecon:is_metarule_on(conductor.states, metanum)
 	end
 	return false
 end
 
-function mesecon:is_conductor_off(nodename)
-	local conductor = mesecon:get_conductor(nodename)
-	if conductor and conductor.state == mesecon.state.off then
-		return true
-	end
-	return false
+function mesecon:is_conductor_off(nodename, metanum)
+	return not mesecon:is_conductor_on(nodename, metanum)
 end
 
 function mesecon:is_conductor(nodename)
@@ -360,6 +359,7 @@ end
 
 function mesecon:is_power_on(pos)
 	local node = minetest.env:get_node(pos)
+	print("mesecon:is_power_on mesecon:is_conductor_on")
 	if mesecon:is_conductor_on(node.name) or mesecon:is_receptor_on(node.name) then
 		return true
 	end
@@ -379,6 +379,7 @@ function mesecon:turnon(pos, rulename)
 
 	if mesecon:is_conductor_off(node.name) then
 		local rules = mesecon:conductor_get_rules(node)
+		--crash
 		minetest.env:add_node(pos, {name = mesecon:get_conductor_on(node.name), param2 = node.param2})
 
 		for _, rule in mesecon:rulepairs(rules) do
@@ -401,6 +402,7 @@ end
 function mesecon:turnoff(pos, rulename)
 	local node = minetest.env:get_node(pos)
 
+	print("mesecon:turnoff mesecon:is_conductor_on")
 	if mesecon:is_conductor_on(node.name) then
 		local rules = mesecon:conductor_get_rules(node)
 		minetest.env:add_node(pos, {name = mesecon:get_conductor_off(node.name), param2 = node.param2})
@@ -514,6 +516,7 @@ function mesecon:is_powered(pos)
 		local np = mesecon:addPosRule(pos, rule)
 		local nn = minetest.env:get_node(np)
 
+		print("mesecon:is_powered mesecon:is_conductor_on")
 		if (mesecon:is_conductor_on (nn.name) or mesecon:is_receptor_on (nn.name))
 		and mesecon:rules_link(np, pos) then
 			return true

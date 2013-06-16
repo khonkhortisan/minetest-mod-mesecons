@@ -15,6 +15,7 @@ function mesecon:move_node(pos, newpos)
 end
 
 function mesecon:rulepairs(rules)
+	--strips metarules, leaving only rules
 	print("mesecon:rulepairs")
 	shallowrules = {}
 	for _,metarule in ipairs(rules) do
@@ -26,6 +27,63 @@ function mesecon:rulepairs(rules)
 	end
 	return ipairs(shallowrules)
 end
+
+function mesecon:findmetanum(metarules, findrule)
+	--get the number of which metarule the rule is in
+	if rules[1].x then
+		return 1
+	end
+	for m,metarule in ipairs(metarules) do
+		for _,rule in ipairs(metarule) do
+			if cmpPos(findrule, rule) then
+				return m
+			end
+		end
+	end
+end
+
+if dec2bin then
+	print("dec2bin added to commonlib, remove here")
+else
+	function dec2bin(n)
+		local x, y = math.floor(n / 2), n % 2
+		if (n > 1) then
+			return dec2bin(x)..y
+		else
+			return ""..y
+		end
+	end
+end
+
+function mesecon:is_metarule_on(states,metanum)
+	state = 1
+	for state, name in ipairs(states) do
+		if name == nodename then
+			break
+		end
+	end
+	--state -= 1
+	state =state- 1
+	binstate = dec2bin(state)
+	metanum = metanum or 1
+	return binstate[binstate:len()-(metanum-1)] == "1"
+end
+
+--is_on ipairs(metarules[metanum])
+
+--if state, offstate, or onstate use old behavior
+
+--process states for node.name to get state
+--decimal state to binary state
+--check rules for that metarule bit
+
+--number of metarules to binary bits
+--rule to metarule
+--turn on/off bit
+--change node to states[binary to decimal + 1]
+--
+--number of metarules is #rules
+--
 
 function mesecon:addPosRule(p, r)
 	print("mesecon:addPosRule")
