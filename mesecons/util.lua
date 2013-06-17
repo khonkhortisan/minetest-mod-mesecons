@@ -31,7 +31,7 @@ end
 function mesecon:ruletometa(findrule, metarules)
 	print("mesecon:ruletometa")
 	--get the number of which metarule the rule is in
-	if metarules[1].x then
+	if not findrule or metarules[1].x then
 		return 1
 	end
 	for m,metarule in ipairs(metarules) do
@@ -72,7 +72,7 @@ function mesecon:getbinstate(nodename, states)
 end
 
 function mesecon:is_metarule_on(binstate,metanum)
-	print("is_metarule_on")
+	print("is_metarule_on "..binstate.." "..metanum)
 	metanum = metanum or 1
 	return binstate[binstate:len()-(metanum-1)] == "1"
 end
@@ -84,6 +84,10 @@ function mesecon:set_metarule(binstate,metanum,bit)
 	elseif bit == "0" and mesecon:is_metarule_on(binstate,metanum) then
 		binstate = dec2bin(tonumber(binstate,2)-math.pow(10,metanum-1))
 	end
+end
+
+function mesecon:invertRule(r)
+	return {x = -r.x, y = -r.y, z = -r.z}
 end
 
 function mesecon:addPosRule(p, r)

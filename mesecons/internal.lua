@@ -315,8 +315,9 @@ function mesecon:is_conductor_on(nodename, rulename)
 		end
 		print("mesecon:is_conductor_on mesecon:ruletometa")
 		metarule = mesecon:ruletometa(rulename, conductor.rules)
-
-		return mesecon:is_metarule_on(conductor.states, metarule)
+		print("metarule "..metarule)
+		binstate = mesecon:getbinstate(nodename, conductor.states)
+		return mesecon:is_metarule_on(binstate, metarule)
 	end
 	return false
 end
@@ -409,11 +410,18 @@ function mesecon:turnon(pos, rulename)
 	if mesecon:is_conductor_off(node.name) then
 		local rules = mesecon:conductor_get_rules(node)
 
-		if rulename then --not mesecon.on_placenode
+		if not rulename then --mesecon.on_placenode
+			for _, rule in mesecon:rulepairs(rules) do
+				if mesecon:is_powered(pos, rule) then
+					mesecon:turnon(pos, rule)
+				end
+			end
+		else
 			minetest.env:add_node(pos, {name = mesecon:get_conductor_on(node.name, rulename), param2 = node.param2})
 		end
 
-		for _, rule in mesecon:rulepairs(rules) do
+		for _, rule in ipairs(rules[mesecon:ruletometa(rulename, rules)]) do
+		--for _, rule in mesecon:rulepairs(rules) do
 			print("mesecon:turnon addPosRule")
 			local np = mesecon:addPosRule(pos, rule)
 			local link, rulename = mesecon:rules_link(pos, np)
@@ -542,17 +550,26 @@ function mesecon:rules_link_anydir(pos1, pos2)
 	return mesecon:rules_link(pos1, pos2) or mesecon:rules_link(pos2, pos1)
 end
 
-function mesecon:is_powered(pos)
+function mesecon:is_powered(pos, rule)
 	local node = minetest.env:get_node(pos)
 	local rules = mesecon:get_any_inputrules(node)
 	if not rules then return false end
 	print("mesecon:is_powered")
-	for _, rule in mesecon:rulepairs(rules) do
+	if not rule then
+		for _, rule in mesecon:rulepairs(rules) do
+			local np = mesecon:addPosRule(pos, rule)
+			local nn = minetest.env:get_node(np)
+	
+			print("mesecon:is_powered mesecon:is_conductor_on")
+			if (mesecon:is_conductor_on (nn.name, mesecon:invertRule(rule)) or mesecon:is_receptor_on (nn.name))
+			and mesecon:rules_link(np, pos) then
+				return true
+			end
+		end
+	else
 		local np = mesecon:addPosRule(pos, rule)
 		local nn = minetest.env:get_node(np)
-
-		print("mesecon:is_powered mesecon:is_conductor_on")
-		if (mesecon:is_conductor_on (nn.name) or mesecon:is_receptor_on (nn.name))
+		if (mesecon:is_conductor_on (nn.name, mesecon:invertRule(rule)) or mesecon:is_receptor_on (nn.name))
 		and mesecon:rules_link(np, pos) then
 			return true
 		end
