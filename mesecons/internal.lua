@@ -311,8 +311,9 @@ function mesecon:is_conductor_on(nodename, rulename)
 			return conductor.state == mesecon.state.on
 		end
 		if not rulename then
-			return mesecon:getstate(nodename, conductor.states) ~= "0"
+			return mesecon:getstate(nodename, conductor.states) ~= 1
 		end
+		print("mesecon:is_conductor_on mesecon:ruletometa")
 		metarule = mesecon:ruletometa(rulename, conductor.rules)
 
 		return mesecon:is_metarule_on(conductor.states, metarule)
@@ -340,10 +341,15 @@ function mesecon:get_conductor_on(offstate, rulename)
 		if conductor.onstate then
 			return conductor.onstate
 		end
+		print(offstate.." "..dump(rulename).." "..dump(conductor.rules))
+		print("mesecon:get_conductor_on mesecon:ruletometa")
 		metarule = mesecon:ruletometa(rulename, conductor.rules)
 		binstate = mesecon:getbinstate(offstate, conductor.states)
 		mesecon:set_metarule(binstate, metarule, "1")
-		return conductor.states[tonumber(binstate,2)]
+		on=tonumber(binstate,2)+1
+		conductor_on = conductor.states[on]
+		print(conductor_on)
+		return conductor_on
 	end
 	return false
 end
@@ -355,10 +361,11 @@ function mesecon:get_conductor_off(onstate, rulename)
 		if conductor.offstate then
 			return conductor.offstate
 		end
+		print("mesecon:get_conductor_off mesecon:ruletometa")
 		metarule = mesecon:ruletometa(rulename, conductor.rules)
 		binstate = mesecon:getbinstate(offstate, conductor.states)
 		mesecon:set_metarule(binstate, metarule, "0")
-		return conductor.states[tonumber(binstate,2)]
+		return conductor.states[tonumber(binstate,2)+1]
 	end
 	return false
 end
@@ -398,11 +405,13 @@ end
 
 function mesecon:turnon(pos, rulename)
 	local node = minetest.env:get_node(pos)
-	print("mesecon:turnon mesecon_is_conductor_off")
+	print("mesecon:turnon "..dump(pos).." "..dump(rulename))
 	if mesecon:is_conductor_off(node.name) then
 		local rules = mesecon:conductor_get_rules(node)
-		--crash
-		minetest.env:add_node(pos, {name = mesecon:get_conductor_on(node.name), param2 = node.param2})
+
+		if rulename then --not mesecon.on_placenode
+			minetest.env:add_node(pos, {name = mesecon:get_conductor_on(node.name, rulename), param2 = node.param2})
+		end
 
 		for _, rule in mesecon:rulepairs(rules) do
 			print("mesecon:turnon addPosRule")
@@ -410,6 +419,7 @@ function mesecon:turnon(pos, rulename)
 			local link, rulename = mesecon:rules_link(pos, np)
 
 			if link then
+				print("mesecon:turnon mesecon:turnon")
 				mesecon:turnon(np, rulename)
 			end
 		end
@@ -473,6 +483,7 @@ end
 function mesecon:find_receptor_on(pos, checked)
 	-- find out if node has already been checked (to prevent from endless loop)
 	for _, cp in mesecon:rulepairs(checked) do
+		print("mesecon:find_receptor_on mesecon:cmpPos")
 		if mesecon:cmpPos(cp, pos) then
 			return false, checked
 		end
@@ -513,11 +524,11 @@ function mesecon:rules_link(output, input, dug_outputrules) --output/input are p
 
 	for _, outputrule in mesecon:rulepairs(outputrules) do
 		-- Check if output sends to input
-		print("mesecon:rules_link addPosRule 1")
+		print("mesecon:rules_link addPosRule/cmpPos")
 		if mesecon:cmpPos(mesecon:addPosRule(output, outputrule), input) then
 			for _, inputrule in mesecon:rulepairs(inputrules) do
 				-- Check if input accepts from output
-				print("mesecon:rules_link addPosRule 2")
+				print("mesecon:rules_link addPosRule/cmpPos 2")
 				if  mesecon:cmpPos(mesecon:addPosRule(input, inputrule), output) then
 					return true, inputrule
 				end

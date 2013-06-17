@@ -36,7 +36,8 @@ function mesecon:ruletometa(findrule, metarules)
 	end
 	for m,metarule in ipairs(metarules) do
 		for _,rule in ipairs(metarule) do
-			if cmpPos(findrule, rule) then
+			print("mesecon:ruletometa mesecon:cmpPos "..dump(findrule).." "..dump(rule))
+			if mesecon:cmpPos(findrule, rule) then
 				return m
 			end
 		end
@@ -77,25 +78,13 @@ function mesecon:is_metarule_on(binstate,metanum)
 end
 
 function mesecon:set_metarule(binstate,metanum,bit)
-	print("mesecon:set_metarule")
-	binstate[binstate:len()-(metanum-1)] = bit
+	print("mesecon:set_metarule, "..binstate..", "..metanum..", "..bit)
+	if bit == "1" and not mesecon:is_metarule_on(binstate,metanum) then
+		binstate = dec2bin(tonumber(binstate,2)+math.pow(10,metanum-1))
+	elseif bit == "0" and mesecon:is_metarule_on(binstate,metanum) then
+		binstate = dec2bin(tonumber(binstate,2)-math.pow(10,metanum-1))
+	end
 end
-
---is_on ipairs(metarules[metanum])
-
---if state, offstate, or onstate use old behavior
-
---process states for node.name to get state
---decimal state to binary state
---check rules for that metarule bit
-
---number of metarules to binary bits
---rule to metarule
---turn on/off bit
---change node to states[binary to decimal + 1]
---
---number of metarules is #rules
---
 
 function mesecon:addPosRule(p, r)
 	print("mesecon:addPosRule")
@@ -103,6 +92,7 @@ function mesecon:addPosRule(p, r)
 end
 
 function mesecon:cmpPos(p1, p2)
+	print("mesecon:cmpPos")
 	return (p1.x == p2.x and p1.y == p2.y and p1.z == p2.z)
 end
 

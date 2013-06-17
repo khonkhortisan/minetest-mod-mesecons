@@ -109,6 +109,7 @@ function mesecon:receptor_on_i(pos, rules)
 		local np = mesecon:addPosRule(pos, rule)
 		local link, rulename = mesecon:rules_link(pos, np, rules)
 		if link then
+			print("mesecon:receptor_on_i mesecon:turnon")
 			mesecon:turnon(np, rulename)
 		end
 	end

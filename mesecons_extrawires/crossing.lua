@@ -45,7 +45,7 @@ minetest.register_node("mesecons_extrawires:crossing_off", {
 			--state = mesecon.state.off,
 			states = crossing_states,
 			--onstate = "mesecons_extrawires:crossing_on",
-			rules = crossing_get_rules,
+			rules = crossing_get_rules(),
 		}
 	},
 })
@@ -75,7 +75,7 @@ minetest.register_node("mesecons_extrawires:crossing_10", {
 			--state = mesecon.state.lo,
 			--state = {false, true},
 			states = crossing_states,
-			rules = crossing_get_rules,
+			rules = crossing_get_rules(),
 		}
 	},
 })
@@ -105,7 +105,7 @@ minetest.register_node("mesecons_extrawires:crossing_01", {
 			--state = mesecon.state.ol,
 			--state = {true, false},
 			states = crossing_states,
-			rules = crossing_get_rules,
+			rules = crossing_get_rules(),
 		}
 	},
 })
@@ -135,7 +135,7 @@ minetest.register_node("mesecons_extrawires:crossing_on", {
 			--state = mesecon.state.on,
 			states = crossing_states,
 			--offstate = "mesecons_extrawires:crossing_off",
-			rules = crossing_get_rules,
+			rules = crossing_get_rules(),
 		}
 	},
 })

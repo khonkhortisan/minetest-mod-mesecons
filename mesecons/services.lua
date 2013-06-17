@@ -1,8 +1,10 @@
 mesecon.on_placenode = function (pos, node)
+	print("mesecon.on_placenode")
 	if mesecon:is_receptor_on(node.name) then
 		mesecon:receptor_on(pos, mesecon:receptor_get_rules(node))
 	elseif mesecon:is_powered(pos) then
 		if mesecon:is_conductor(node.name) then
+			print("mesecon.on_placenode mesecon:turnon")
 			mesecon:turnon (pos)
 			mesecon:receptor_on (pos, mesecon:conductor_get_rules(node))
 		else
