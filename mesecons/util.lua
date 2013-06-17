@@ -91,7 +91,10 @@ end
 function mesecon:is_metarule_on(binstate,metanum)
 	print("is_metarule_on "..binstate.." "..metanum)
 	metanum = metanum or 1
-	return binstate[binstate:len()-(metanum-1)] == "1"
+	--print("is_metarule_on bit is "..binstate[binstate:len()-(metanum-1)])
+	--return binstate[binstate:len()-(metanum-1)] == "1"
+	local i = binstate:len()-(metanum-1)
+	return binstate:sub(i,i) == "1"
 end
 
 function mesecon:set_metarule(binstate,metanum,bit)

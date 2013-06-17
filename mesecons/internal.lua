@@ -364,11 +364,18 @@ function mesecon:get_conductor_off(onstate, rulename)
 		if conductor.offstate then
 			return conductor.offstate
 		end
-		print("mesecon:get_conductor_off ")
+		print("mesecon:get_conductor_off "..onstate.." "..dump(rulename).." "..dump(conductor.rules))
 		local metarule = mesecon:ruletometa(rulename, conductor.rules)
-		local binstate = mesecon:getbinstate(offstate, conductor.states)
+		print("mesecon:get_conductor_off metarule "..metarule)
+		local binstate = mesecon:getbinstate(onstate, conductor.states)
+		print("mesecon:get_conductor_off binstate "..binstate)
 		binstate = mesecon:set_metarule(binstate, metarule, "0")
-		return conductor.states[tonumber(binstate,2)+1]
+		print("mesecon:get_conductor_off new binstate "..binstate)
+		local off=tonumber(binstate,2)+1
+		print("mesecon:get_conductor_off off "..off)
+		local conductor_off = conductor.states[off]
+		print("mesecon:get_conductor_off "..onstate.." → "..conductor_off)
+		return conductor_off
 	end
 	return false
 end
@@ -451,7 +458,17 @@ function mesecon:turnoff(pos, rulename)
 	print("mesecon:turnoff mesecon:is_conductor_on")
 	if mesecon:is_conductor_on(node.name) then
 		local rules = mesecon:conductor_get_rules(node)
-		minetest.env:add_node(pos, {name = mesecon:get_conductor_off(node.name), param2 = node.param2})
+
+		if not rulename then --mesecon.on_dignode
+			print("mesecon:turnoff not rulename")
+			for _, rule in ipairs(mesecon:rulepairs(rules)) do
+				if mesecon:is_powered(pos, rule) then
+					mesecon:turnoff(pos, rule)
+				end
+			end
+		else
+			minetest.env:add_node(pos, {name = mesecon:get_conductor_off(node.name, rulename), param2 = node.param2})
+		end
 
 		for _, rule in ipairs(mesecon:ruletometa2(rulename, rules)) do
 		--for _, rule in mesecon:rulepairs(rules) do
