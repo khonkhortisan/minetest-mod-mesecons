@@ -25,7 +25,7 @@ function mesecon:rulepairs(rules)
 			table.insert(shallowrules,rule)
 		end end
 	end
-	return ipairs(shallowrules)
+	return shallowrules
 end
 
 function mesecon:ruletometa(findrule, metarules)
@@ -45,8 +45,12 @@ function mesecon:ruletometa(findrule, metarules)
 end
 
 function mesecon:ruletometa2(findrule, metarules)
-	if (not findrule) or metarules[1].x then
+	print("mesecon:ruletometa2 "..dump(findrule).." "..dump(metarules))
+	if metarules[1].x then
 		return metarules
+	end
+	if not(findrule) then
+		return mesecon:rulepairs(metarules)
 	end
 	for m, metarule in ipairs(metarules) do
 		for _, rule in ipairs(metarule) do
@@ -80,7 +84,7 @@ function mesecon:getstate(nodename, states)
 end
 
 function mesecon:getbinstate(nodename, states)
-	print("mesecon:getbinstate")
+	print("mesecon:getbinstate "..nodename.." "..dump(states))
 	return dec2bin(mesecon:getstate(nodename, states)-1)
 end
 
@@ -92,11 +96,21 @@ end
 
 function mesecon:set_metarule(binstate,metanum,bit)
 	print("mesecon:set_metarule, "..binstate..", "..metanum..", "..bit)
-	if bit == "1" and not mesecon:is_metarule_on(binstate,metanum) then
-		binstate = dec2bin(tonumber(binstate,2)+math.pow(10,metanum-1))
-	elseif bit == "0" and mesecon:is_metarule_on(binstate,metanum) then
-		binstate = dec2bin(tonumber(binstate,2)-math.pow(10,metanum-1))
+	if bit == "1" then
+		print("bit = 1")
+		if not mesecon:is_metarule_on(binstate,metanum) then
+			print("not on")
+			return dec2bin(tonumber(binstate,2)+math.pow(2,metanum-1))
+		end
+	elseif bit == "0" then
+		print("bit = 0")
+		if mesecon:is_metarule_on(binstate,metanum) then
+			print("on")
+			return dec2bin(tonumber(binstate,2)-math.pow(2,metanum-1))
+		end
 	end
+	return binstate
+	
 end
 
 function mesecon:invertRule(r)

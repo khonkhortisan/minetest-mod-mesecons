@@ -1,23 +1,18 @@
--- CODE NOT ACTIVE
-
-local crossover_get_rules = function(node)
-	--TODO: calculate the real port states and use rules to link to them only if
-	return {
-		{--first wire
-			{x=-1,y=0,z=0},
-			{x=1,y=0,z=0},
-		},
-		{--second wire
-			{x=0,y=0,z=-1},
-			{x=0,y=0,z=1},
-		},
-	}
-end
+local crossover_rules = {
+	{--first wire
+		{x=-1,y=0,z=0},
+		{x=1,y=0,z=0},
+	},
+	{--second wire
+		{x=0,y=0,z=-1},
+		{x=0,y=0,z=1},
+	},
+}
 
 local crossover_states = {
 	"mesecons_extrawires:crossover_off",
-	"mesecons_extrawires:crossover_10",
 	"mesecons_extrawires:crossover_01",
+	"mesecons_extrawires:crossover_10",
 	"mesecons_extrawires:crossover_on",
 }
 
@@ -42,15 +37,13 @@ minetest.register_node("mesecons_extrawires:crossover_off", {
 	groups = {dig_immediate=3, mesecon=3, mesecon_conductor_craftable=1},
 	mesecons = {
 		conductor = {
-			--state = mesecon.state.off,
 			states = crossover_states,
-			--onstate = "mesecons_extrawires:crossover_on",
-			rules = crossover_get_rules(),
+			rules = crossover_rules,
 		}
 	},
 })
 
-minetest.register_node("mesecons_extrawires:crossover_10", {
+minetest.register_node("mesecons_extrawires:crossover_01", {
 	drop = "mesecons_extrawires:crossover_off",
 	drawtype = "nodebox",
 	tiles = {"default_dirt.png"},
@@ -72,15 +65,13 @@ minetest.register_node("mesecons_extrawires:crossover_10", {
 	groups = {dig_immediate=3, mesecon=3, mesecon_conductor_craftable=1, not_in_creative_inventory=1},
 	mesecons = {
 		conductor = {
-			--state = mesecon.state.lo,
-			--state = {false, true},
 			states = crossover_states,
-			rules = crossover_get_rules(),
+			rules = crossover_rules,
 		}
 	},
 })
 
-minetest.register_node("mesecons_extrawires:crossover_01", {
+minetest.register_node("mesecons_extrawires:crossover_10", {
 	drop = "mesecons_extrawires:crossover_off",
 	drawtype = "nodebox",
 	tiles = {"default_stone.png"},
@@ -102,10 +93,8 @@ minetest.register_node("mesecons_extrawires:crossover_01", {
 	groups = {dig_immediate=3, mesecon=3, mesecon_conductor_craftable=1, not_in_creative_inventory=1},
 	mesecons = {
 		conductor = {
-			--state = mesecon.state.ol,
-			--state = {true, false},
 			states = crossover_states,
-			rules = crossover_get_rules(),
+			rules = crossover_rules,
 		}
 	},
 })
@@ -132,10 +121,8 @@ minetest.register_node("mesecons_extrawires:crossover_on", {
 	groups = {dig_immediate=3, mesecon=3, mesecon_conductor_craftable=1, not_in_creative_inventory=1},
 	mesecons = {
 		conductor = {
-			--state = mesecon.state.on,
 			states = crossover_states,
-			--offstate = "mesecons_extrawires:crossover_off",
-			rules = crossover_get_rules(),
+			rules = crossover_rules,
 		}
 	},
 })
