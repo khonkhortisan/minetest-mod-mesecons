@@ -43,7 +43,3 @@ end
 
 mesecon.state.on = "on"
 mesecon.state.off = "off"
-mesecon.state.lo = "on,off"
-mesecon.state.ol = "off,on"
-mesecon.state.loo = "on,off,off"
---…

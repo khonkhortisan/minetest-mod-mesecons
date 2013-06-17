@@ -1,6 +1,6 @@
 -- CODE NOT ACTIVE
 
-local crossing_get_rules = function(node)
+local crossover_get_rules = function(node)
 	--TODO: calculate the real port states and use rules to link to them only if
 	return {
 		{--first wire
@@ -14,14 +14,14 @@ local crossing_get_rules = function(node)
 	}
 end
 
-local crossing_states = {
-	"mesecons_extrawires:crossing_off",
-	"mesecons_extrawires:crossing_10",
-	"mesecons_extrawires:crossing_01",
-	"mesecons_extrawires:crossing_on",
+local crossover_states = {
+	"mesecons_extrawires:crossover_off",
+	"mesecons_extrawires:crossover_10",
+	"mesecons_extrawires:crossover_01",
+	"mesecons_extrawires:crossover_on",
 }
 
-minetest.register_node("mesecons_extrawires:crossing_off", {
+minetest.register_node("mesecons_extrawires:crossover_off", {
 	drawtype = "nodebox",
 	tiles = {"jeija_insulated_wire_sides_off.png"},
 	paramtype = "light",
@@ -43,15 +43,15 @@ minetest.register_node("mesecons_extrawires:crossing_off", {
 	mesecons = {
 		conductor = {
 			--state = mesecon.state.off,
-			states = crossing_states,
-			--onstate = "mesecons_extrawires:crossing_on",
-			rules = crossing_get_rules(),
+			states = crossover_states,
+			--onstate = "mesecons_extrawires:crossover_on",
+			rules = crossover_get_rules(),
 		}
 	},
 })
 
-minetest.register_node("mesecons_extrawires:crossing_10", {
-	drop = "mesecons_extrawires:crossing_off",
+minetest.register_node("mesecons_extrawires:crossover_10", {
+	drop = "mesecons_extrawires:crossover_off",
 	drawtype = "nodebox",
 	tiles = {"default_dirt.png"},
 	paramtype = "light",
@@ -74,14 +74,14 @@ minetest.register_node("mesecons_extrawires:crossing_10", {
 		conductor = {
 			--state = mesecon.state.lo,
 			--state = {false, true},
-			states = crossing_states,
-			rules = crossing_get_rules(),
+			states = crossover_states,
+			rules = crossover_get_rules(),
 		}
 	},
 })
 
-minetest.register_node("mesecons_extrawires:crossing_01", {
-	drop = "mesecons_extrawires:crossing_off",
+minetest.register_node("mesecons_extrawires:crossover_01", {
+	drop = "mesecons_extrawires:crossover_off",
 	drawtype = "nodebox",
 	tiles = {"default_stone.png"},
 	paramtype = "light",
@@ -104,14 +104,14 @@ minetest.register_node("mesecons_extrawires:crossing_01", {
 		conductor = {
 			--state = mesecon.state.ol,
 			--state = {true, false},
-			states = crossing_states,
-			rules = crossing_get_rules(),
+			states = crossover_states,
+			rules = crossover_get_rules(),
 		}
 	},
 })
 
-minetest.register_node("mesecons_extrawires:crossing_on", {
-	drop = "mesecons_extrawires:crossing_off",
+minetest.register_node("mesecons_extrawires:crossover_on", {
+	drop = "mesecons_extrawires:crossover_off",
 	drawtype = "nodebox",
 	tiles = {"jeija_insulated_wire_sides_on.png"},
 	paramtype = "light",
@@ -133,16 +133,16 @@ minetest.register_node("mesecons_extrawires:crossing_on", {
 	mesecons = {
 		conductor = {
 			--state = mesecon.state.on,
-			states = crossing_states,
-			--offstate = "mesecons_extrawires:crossing_off",
-			rules = crossing_get_rules(),
+			states = crossover_states,
+			--offstate = "mesecons_extrawires:crossover_off",
+			rules = crossover_get_rules(),
 		}
 	},
 })
 
 minetest.register_craft({
 	type = "shapeless",
-	output = "mesecons_extrawires:crossing_off",
+	output = "mesecons_extrawires:crossover_off",
 	recipe = {
 		"mesecons_insulated:insulated_off",
 		"mesecons_insulated:insulated_off",
@@ -153,6 +153,6 @@ minetest.register_craft({
 	type = "shapeless",
 	output = "mesecons_insulated:insulated_off 2",
 	recipe = {
-		"mesecons_extrawires:crossing_off",
+		"mesecons_extrawires:crossover_off",
 	},
 })

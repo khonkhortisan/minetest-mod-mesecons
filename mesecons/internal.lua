@@ -442,7 +442,7 @@ function mesecon:turnon(pos, rulename)
 end
 
 function mesecon:turnoff(pos, rulename)
-	print("mesecon:turnoff")
+	print("mesecon:turnoff "..dump(pos).." "..dump(rulename))
 	local node = minetest.env:get_node(pos)
 
 	print("mesecon:turnoff mesecon:is_conductor_on")
@@ -450,12 +450,14 @@ function mesecon:turnoff(pos, rulename)
 		local rules = mesecon:conductor_get_rules(node)
 		minetest.env:add_node(pos, {name = mesecon:get_conductor_off(node.name), param2 = node.param2})
 
-		for _, rule in mesecon:rulepairs(rules) do
+		for _, rule in ipairs(mesecon:ruletometa2(rulename, rules)) do
+		--for _, rule in mesecon:rulepairs(rules) do
 			print("mesecon:turnoff addPosRule")
 			local np = mesecon:addPosRule(pos, rule)
 			local link, rulename = mesecon:rules_link(pos, np)
 
 			if link then
+				print("mesecon:turnoff mesecon:turnoff")
 				mesecon:turnoff(np, rulename)
 			end
 		end
