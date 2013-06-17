@@ -28,9 +28,10 @@ function mesecon:rulepairs(rules)
 	return ipairs(shallowrules)
 end
 
-function mesecon:findmetanum(metarules, findrule)
+function mesecon:ruletometa(findrule, metarules)
+	print("mesecon:ruletometa")
 	--get the number of which metarule the rule is in
-	if rules[1].x then
+	if metarules[1].x then
 		return 1
 	end
 	for m,metarule in ipairs(metarules) do
@@ -55,18 +56,29 @@ else
 	end
 end
 
-function mesecon:is_metarule_on(states,metanum)
-	state = 1
+function mesecon:getstate(nodename, states)
+	print("mesecon:getstate")
 	for state, name in ipairs(states) do
 		if name == nodename then
-			break
+			return state
 		end
 	end
-	--state -= 1
-	state =state- 1
-	binstate = dec2bin(state)
+end
+
+function mesecon:getbinstate(nodename, states)
+	print("mesecon:getbinstate")
+	return dec2bin(mesecon:getstate(nodename, states)-1)
+end
+
+function mesecon:is_metarule_on(binstate,metanum)
+	print("is_metarule_on")
 	metanum = metanum or 1
 	return binstate[binstate:len()-(metanum-1)] == "1"
+end
+
+function mesecon:set_metarule(binstate,metanum,bit)
+	print("mesecon:set_metarule")
+	binstate[binstate:len()-(metanum-1)] = bit
 end
 
 --is_on ipairs(metarules[metanum])

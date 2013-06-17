@@ -303,19 +303,26 @@ end
 
 -- Conductors
 
-function mesecon:is_conductor_on(nodename, metanum)
+function mesecon:is_conductor_on(nodename, rulename)
+	print("mesecon:is_conductor_on")
 	local conductor = mesecon:get_conductor(nodename)
 	if conductor then
 		if conductor.state then
 			return conductor.state == mesecon.state.on
 		end
-		return mesecon:is_metarule_on(conductor.states, metanum)
+		if not rulename then
+			return mesecon:getstate(nodename, conductor.states) ~= "0"
+		end
+		metarule = mesecon:ruletometa(rulename, conductor.rules)
+
+		return mesecon:is_metarule_on(conductor.states, metarule)
 	end
 	return false
 end
 
-function mesecon:is_conductor_off(nodename, metanum)
-	return not mesecon:is_conductor_on(nodename, metanum)
+function mesecon:is_conductor_off(nodename, rulename)
+	print("mesecon:is_conductor_off")
+	return not mesecon:is_conductor_on(nodename, rulename)
 end
 
 function mesecon:is_conductor(nodename)
@@ -326,18 +333,32 @@ function mesecon:is_conductor(nodename)
 	return false
 end
 
-function mesecon:get_conductor_on(offstate)
+function mesecon:get_conductor_on(offstate, rulename)
+	print("mesecon:get_conductor_on")
 	local conductor = mesecon:get_conductor(offstate)
 	if conductor then
-		return conductor.onstate
+		if conductor.onstate then
+			return conductor.onstate
+		end
+		metarule = mesecon:ruletometa(rulename, conductor.rules)
+		binstate = mesecon:getbinstate(offstate, conductor.states)
+		mesecon:set_metarule(binstate, metarule, "1")
+		return conductor.states[tonumber(binstate,2)]
 	end
 	return false
 end
 
-function mesecon:get_conductor_off(onstate)
+function mesecon:get_conductor_off(onstate, rulename)
+	print("mesecon:get_conductor_off")
 	local conductor = mesecon:get_conductor(onstate)
 	if conductor then
-		return conductor.offstate
+		if conductor.offstate then
+			return conductor.offstate
+		end
+		metarule = mesecon:ruletometa(rulename, conductor.rules)
+		binstate = mesecon:getbinstate(offstate, conductor.states)
+		mesecon:set_metarule(binstate, metarule, "0")
+		return conductor.states[tonumber(binstate,2)]
 	end
 	return false
 end
@@ -368,6 +389,7 @@ end
 
 function mesecon:is_power_off(pos)
 	local node = minetest.env:get_node(pos)
+	print("mesecon:is_power_off mesecon:is_conductor_off")
 	if mesecon:is_conductor_off(node.name) or mesecon:is_receptor_off(node.name) then
 		return true
 	end
@@ -376,7 +398,7 @@ end
 
 function mesecon:turnon(pos, rulename)
 	local node = minetest.env:get_node(pos)
-
+	print("mesecon:turnon mesecon_is_conductor_off")
 	if mesecon:is_conductor_off(node.name) then
 		local rules = mesecon:conductor_get_rules(node)
 		--crash
@@ -400,6 +422,7 @@ function mesecon:turnon(pos, rulename)
 end
 
 function mesecon:turnoff(pos, rulename)
+	print("mesecon:turnoff")
 	local node = minetest.env:get_node(pos)
 
 	print("mesecon:turnoff mesecon:is_conductor_on")
@@ -418,6 +441,7 @@ function mesecon:turnoff(pos, rulename)
 		end
 	elseif mesecon:is_effector(node.name) then
 		mesecon:changesignal(pos, node, rulename, mesecon.state.off)
+		print("mesecon:turnoff mesecon:is_powered")
 		if mesecon:is_effector_on(node.name)
 		and not mesecon:is_powered(pos) then
 			mesecon:deactivate(pos, node, rulename)

@@ -104,7 +104,7 @@ dofile(minetest.get_modpath("mesecons").."/legacy.lua");
 function mesecon:receptor_on_i(pos, rules)
 	rules = rules or mesecon.rules.default
 
-	for _, rule in ipairs(rules) do
+	for _, rule in mesecon:rulepairs(rules) do
 		print("mesecon:receptor_on_i addPosRule")
 		local np = mesecon:addPosRule(pos, rule)
 		local link, rulename = mesecon:rules_link(pos, np, rules)
@@ -126,7 +126,7 @@ end
 function mesecon:receptor_off_i(pos, rules)
 	rules = rules or mesecon.rules.default
 
-	for _, rule in ipairs(rules) do
+	for _, rule in mesecon:rulepairs(rules) do
 		print("mesecon:receptor_off_i addPosRule")
 		local np = mesecon:addPosRule(pos, rule)
 		local link, rulename = mesecon:rules_link(pos, np, rules)
