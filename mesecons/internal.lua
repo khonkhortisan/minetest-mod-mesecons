@@ -412,7 +412,7 @@ function mesecon:turnon(pos, rulename)
 
 		if not rulename then --mesecon.on_placenode
 			for _, rule in mesecon:rulepairs(rules) do
-				if mesecon:is_powered(pos, rule) then
+				if not mesecon:is_powered(pos, rule) then
 					mesecon:turnon(pos, rule)
 				end
 			end
@@ -420,8 +420,10 @@ function mesecon:turnon(pos, rulename)
 			minetest.env:add_node(pos, {name = mesecon:get_conductor_on(node.name, rulename), param2 = node.param2})
 		end
 
-		for _, rule in ipairs(rules[mesecon:ruletometa(rulename, rules)]) do
+		for _, rule in ipairs(mesecon:ruletometa2(rulename, rules)) do
+		--for _, rule in ipairs(rules[mesecon:ruletometa(rulename, rules)]) do
 		--for _, rule in mesecon:rulepairs(rules) do
+		--for _, rule in ipairs(rules) do
 			print("mesecon:turnon addPosRule")
 			local np = mesecon:addPosRule(pos, rule)
 			local link, rulename = mesecon:rules_link(pos, np)

@@ -31,7 +31,7 @@ end
 function mesecon:ruletometa(findrule, metarules)
 	print("mesecon:ruletometa")
 	--get the number of which metarule the rule is in
-	if not findrule or metarules[1].x then
+	if (not findrule) or metarules[1].x then
 		return 1
 	end
 	for m,metarule in ipairs(metarules) do
@@ -39,6 +39,19 @@ function mesecon:ruletometa(findrule, metarules)
 			print("mesecon:ruletometa mesecon:cmpPos "..dump(findrule).." "..dump(rule))
 			if mesecon:cmpPos(findrule, rule) then
 				return m
+			end
+		end
+	end
+end
+
+function mesecon:ruletometa2(findrule, metarules)
+	if (not findrule) or metarules[1].x then
+		return metarules
+	end
+	for m, metarule in ipairs(metarules) do
+		for _, rule in ipairs(metarule) do
+			if mesecon:cmpPos(findrule, rule) then
+				return metarule
 			end
 		end
 	end
