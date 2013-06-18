@@ -66,7 +66,9 @@ end
 function mesecon:rule2bit(findrule, allrules)
 	--print("mesecon:rule2bit")
 	--get the bit of the metarule the rule is in, or bit 1
-	if allrules[1].x or not findrule then
+	if (allrules[1] and
+	    allrules[1].x) or
+	    not findrule then
 		--print("mesecon:rule2bit ERROR")
 		return 1
 	end
