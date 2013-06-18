@@ -458,7 +458,7 @@ function mesecon:turnoff(pos, rulename)
 	local node = minetest.env:get_node(pos)
 
 	print("mesecon:turnoff mesecon:is_conductor_on")
-	if mesecon:is_conductor_on(node.name) then
+	if mesecon:is_conductor_on(node.name, rulename) then
 		local rules = mesecon:conductor_get_rules(node)
 
 		if not rulename then --mesecon.on_dignode
