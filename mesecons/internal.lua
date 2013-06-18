@@ -313,11 +313,11 @@ function mesecon:is_conductor_on(nodename, rulename)
 		if not rulename then
 			return mesecon:getstate(nodename, conductor.states) ~= 1
 		end
-		print("mesecon:is_conductor_on mesecon:ruletometa")
-		metarule = mesecon:ruletometa(rulename, conductor.rules)
-		print("metarule "..metarule)
+		print("mesecon:is_conductor_on mesecon:rule2bit")
+		local bit = mesecon:rule2bit(rulename, conductor.rules)
+		print("bit "..bit)
 		binstate = mesecon:getbinstate(nodename, conductor.states)
-		return mesecon:is_metarule_on(binstate, metarule)
+		return mesecon:get_bit(binstate, bit)
 	end
 	return false
 end
@@ -342,11 +342,11 @@ function mesecon:get_conductor_on(offstate, rulename)
 			return conductor.onstate
 		end
 		print("mesecon:get_conductor_on "..offstate.." "..dump(rulename).." "..dump(conductor.rules))
-		local metarule = mesecon:ruletometa(rulename, conductor.rules)
-		print("mesecon:get_conductor_on metarule "..metarule)
+		local bit = mesecon:rule2bit(rulename, conductor.rules)
+		print("mesecon:get_conductor_on bit "..bit)
 		local binstate = mesecon:getbinstate(offstate, conductor.states)
 		print("mesecon:get_conductor_on binstate "..binstate)
-		binstate = mesecon:set_metarule(binstate, metarule, "1")
+		binstate = mesecon:set_bit(binstate, bit, "1")
 		print("mesecon:get_conductor_on new binstate "..binstate)
 		local on=tonumber(binstate,2)+1
 		print("mesecon:get_conductor_on on "..on)
@@ -365,11 +365,11 @@ function mesecon:get_conductor_off(onstate, rulename)
 			return conductor.offstate
 		end
 		print("mesecon:get_conductor_off "..onstate.." "..dump(rulename).." "..dump(conductor.rules))
-		local metarule = mesecon:ruletometa(rulename, conductor.rules)
-		print("mesecon:get_conductor_off metarule "..metarule)
+		local bit = mesecon:rule2bit(rulename, conductor.rules)
+		print("mesecon:get_conductor_off bit "..bit)
 		local binstate = mesecon:getbinstate(onstate, conductor.states)
 		print("mesecon:get_conductor_off binstate "..binstate)
-		binstate = mesecon:set_metarule(binstate, metarule, "0")
+		binstate = mesecon:set_bit(binstate, bit, "0")
 		print("mesecon:get_conductor_off new binstate "..binstate)
 		local off=tonumber(binstate,2)+1
 		print("mesecon:get_conductor_off off "..off)
@@ -421,7 +421,7 @@ function mesecon:turnon(pos, rulename)
 
 		if not rulename then --mesecon.on_placenode
 			print("mesecon:turnon not rulename")
-			for _, rule in ipairs(mesecon:rulepairs(rules)) do
+			for _, rule in ipairs(mesecon:flattenrules(rules)) do
 				if not mesecon:is_powered(pos, rule) then
 					mesecon:turnon(pos, rule)
 				end
@@ -430,9 +430,9 @@ function mesecon:turnon(pos, rulename)
 			minetest.env:add_node(pos, {name = mesecon:get_conductor_on(node.name, rulename), param2 = node.param2})
 		end
 
-		for _, rule in ipairs(mesecon:ruletometa2(rulename, rules)) do
-		--for _, rule in ipairs(rules[mesecon:ruletometa(rulename, rules)]) do
-		--for _, rule in ipairs(mesecon:rulepairs(rules)) do
+		for _, rule in ipairs(mesecon:rule2meta(rulename, rules)) do
+		--for _, rule in ipairs(rules[mesecon:rule2bit(rulename, rules)]) do
+		--for _, rule in ipairs(mesecon:flattenrules(rules)) do
 		--for _, rule in ipairs(rules) do
 			print("mesecon:turnon addPosRule "..dump(pos)..dump(rule))
 			local np = mesecon:addPosRule(pos, rule)
@@ -461,7 +461,7 @@ function mesecon:turnoff(pos, rulename)
 
 		if not rulename then --mesecon.on_dignode
 			print("mesecon:turnoff not rulename")
-			for _, rule in ipairs(mesecon:rulepairs(rules)) do
+			for _, rule in ipairs(mesecon:flattenrules(rules)) do
 				if mesecon:is_powered(pos, rule) then
 					mesecon:turnoff(pos, rule)
 				end
@@ -470,8 +470,8 @@ function mesecon:turnoff(pos, rulename)
 			minetest.env:add_node(pos, {name = mesecon:get_conductor_off(node.name, rulename), param2 = node.param2})
 		end
 
-		for _, rule in ipairs(mesecon:ruletometa2(rulename, rules)) do
-		--for _, rule in mesecon:rulepairs(rules) do
+		for _, rule in ipairs(mesecon:rule2meta(rulename, rules)) do
+		--for _, rule in mesecon:flattenrules(rules) do
 			print("mesecon:turnoff addPosRule")
 			local np = mesecon:addPosRule(pos, rule)
 			local link, rulename = mesecon:rules_link(pos, np)
@@ -498,8 +498,8 @@ function mesecon:connected_to_receptor(pos)
 	-- Check if conductors around are connected
 	local rules = mesecon:get_any_inputrules(node)
 	if not rules then return false end
-
-	for _, rule in ipairs(mesecon:rulepairs(rules)) do
+	print("mesecon:connected_to_receptor mesecon:flattenrules")
+	for _, rule in ipairs(mesecon:flattenrules(rules)) do
 		print("mesecon:connected_to_receptor addPosRule")
 		local np = mesecon:addPosRule(pos, rule)
 		if mesecon:rules_link(np, pos) then
@@ -514,7 +514,8 @@ end
 
 function mesecon:find_receptor_on(pos, checked)
 	-- find out if node has already been checked (to prevent from endless loop)
-	for _, cp in ipairs(mesecon:rulepairs(checked)) do
+	print("mesecon:find_receptor_on mesecon:flattenrules")
+	for _, cp in ipairs(mesecon:flattenrules(checked)) do
 		print("mesecon:find_receptor_on mesecon:cmpPos")
 		if mesecon:cmpPos(cp, pos) then
 			return false, checked
@@ -531,7 +532,8 @@ function mesecon:find_receptor_on(pos, checked)
 
 	if mesecon:is_conductor(node.name) then
 		local rules = mesecon:conductor_get_rules(node)
-		for _, rule in ipairs(mesecon:rulepairs(rules)) do
+		print("mesecon:find_receptor_on mesecon:flattenrules 2")
+		for _, rule in ipairs(mesecon:flattenrules(rules)) do
 			print("mesecon:find_receptor_on addPosRule")
 			local np = mesecon:addPosRule(pos, rule)
 			if mesecon:rules_link(np, pos) then
@@ -554,11 +556,13 @@ function mesecon:rules_link(output, input, dug_outputrules) --output/input are p
 		return
 	end
 
-	for _, outputrule in ipairs(mesecon:rulepairs(outputrules)) do
+	print("mesecon:ruleslink mesecon:flattenrules")
+	for _, outputrule in ipairs(mesecon:flattenrules(outputrules)) do
 		-- Check if output sends to input
 		print("mesecon:rules_link addPosRule/cmpPos")
 		if mesecon:cmpPos(mesecon:addPosRule(output, outputrule), input) then
-			for _, inputrule in ipairs(mesecon:rulepairs(inputrules)) do
+			print("mesecon:ruleslink mesecon:flattenrules 2")
+			for _, inputrule in ipairs(mesecon:flattenrules(inputrules)) do
 				-- Check if input accepts from output
 				print("mesecon:rules_link addPosRule/cmpPos 2")
 				if  mesecon:cmpPos(mesecon:addPosRule(input, inputrule), output) then
@@ -580,7 +584,8 @@ function mesecon:is_powered(pos, rule)
 	if not rules then return false end
 	print("mesecon:is_powered")
 	if not rule then
-		for _, rule in ipairs(mesecon:rulepairs(rules)) do
+		print("mesecon:is_powered mesecon:flattenrules")
+		for _, rule in ipairs(mesecon:flattenrules(rules)) do
 			local np = mesecon:addPosRule(pos, rule)
 			local nn = minetest.env:get_node(np)
 	
