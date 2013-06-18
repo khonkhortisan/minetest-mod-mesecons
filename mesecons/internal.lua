@@ -337,22 +337,24 @@ function mesecon:is_conductor(nodename)
 end
 
 function mesecon:get_conductor_on(offstate, rulename)
+	print("mesecon:get_conductor_on "..offstate.." "..dump(rulename))
 	local conductor = mesecon:get_conductor(offstate)
 	if conductor then
 		if conductor.onstate then
+			print("mesecon:get_conductor_on "..conductor.onstate)
 			return conductor.onstate
 		end
-		--print("mesecon:get_conductor_on "..offstate.." "..dump(rulename).." "..dump(conductor.rules))
+		print("mesecon:get_conductor_on "..offstate.." "..dump(rulename).." "..dump(conductor.rules))
 		local bit = mesecon:rule2bit(rulename, conductor.rules)
-		--print("mesecon:get_conductor_on bit "..bit)
+		print("mesecon:get_conductor_on bit "..bit)
 		local binstate = mesecon:getbinstate(offstate, conductor.states)
-		--print("mesecon:get_conductor_on binstate "..binstate)
+		print("mesecon:get_conductor_on binstate "..binstate)
 		binstate = mesecon:set_bit(binstate, bit, "1")
-		--print("mesecon:get_conductor_on new binstate "..binstate)
+		print("mesecon:get_conductor_on new binstate "..binstate)
 		local on=tonumber(binstate,2)+1
-		--print("mesecon:get_conductor_on on "..on)
+		print("mesecon:get_conductor_on on "..on)
 		local conductor_on = conductor.states[on]
-		--print("mesecon:get_conductor_on "..offstate.." → "..conductor_on)
+		print("mesecon:get_conductor_on "..offstate.." → "..conductor_on)
 		return conductor_on
 	end
 	return false
@@ -430,6 +432,8 @@ function mesecon:turnon(pos, rulename)
 			end
 		else
 			minetest.env:add_node(pos, {name = mesecon:get_conductor_on(node.name, rulename), param2 = node.param2})
+			--minetest.add_node(pos, {name = mesecon:get_conductor_on(node.name, rulename), param2 = node.param2})
+
 		end
 
 		for _, rule in ipairs(mesecon:rule2meta(rulename, rules)) do

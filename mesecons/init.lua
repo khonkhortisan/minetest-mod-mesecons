@@ -102,6 +102,7 @@ dofile(minetest.get_modpath("mesecons").."/legacy.lua");
 -- these are the only functions you need to remember
 
 function mesecon:receptor_on_i(pos, rules)
+	print("mesecon:receptor_on_i")
 	rules = rules or mesecon.rules.default
 
 	for _, rule in ipairs(mesecon:flattenrules(rules)) do
@@ -125,6 +126,7 @@ function mesecon:receptor_on(pos, rules)
 end
 
 function mesecon:receptor_off_i(pos, rules)
+	print("mesecon:receptor_off_i")
 	rules = rules or mesecon.rules.default
 
 	for _, rule in ipairs(mesecon:flattenrules(rules)) do
