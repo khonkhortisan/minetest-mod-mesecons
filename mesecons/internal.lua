@@ -357,7 +357,8 @@ function mesecon:get_conductor_on(offstate, rulename)
 		print("mesecon:get_conductor_on "..offstate.." → "..conductor_on)
 		return conductor_on
 	end
-	return false
+	--return false
+	return offstate
 end
 
 function mesecon:get_conductor_off(onstate, rulename)
