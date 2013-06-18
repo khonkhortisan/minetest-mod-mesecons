@@ -14,9 +14,20 @@ function mesecon:move_node(pos, newpos)
 	minetest.env:get_meta(pos):from_table(meta)
 end
 
---rulepairs
+--[[ new functions:
+mesecon:flattenrules(allrules)
+mesecon:rule2bit(findrule, allrules)
+mesecon:rule2meta(findrule, allrules)
+dec2bin(n)
+mesecon:getstate(nodename, states)
+mesecon:getbinstate(nodename, states)
+mesecon:get_bit(binary, bit)
+mesecon:set_bit(binary, bit, value)
+mesecon:invertRule(r)
+--]]
+
 function mesecon:flattenrules(allrules)
-	print("mesecon:flattenrules")
+	--print("mesecon:flattenrules")
 --[[
 	{
 		{
@@ -29,7 +40,7 @@ function mesecon:flattenrules(allrules)
 		},
 	}
 --]]
-	print(dump(allrules))
+	--print(dump(allrules))
 	if allrules[1] and
 	   allrules[1].x then
 		return allrules
@@ -51,27 +62,27 @@ function mesecon:flattenrules(allrules)
 	}
 --]]
 end
---ruletometa
+
 function mesecon:rule2bit(findrule, allrules)
-	print("mesecon:rule2bit")
+	--print("mesecon:rule2bit")
 	--get the bit of the metarule the rule is in, or bit 1
 	if allrules[1].x or not findrule then
-		print("mesecon:rule2bit ERROR")
+		--print("mesecon:rule2bit ERROR")
 		return 1
 	end
 	for m,metarule in ipairs( allrules) do
 	for _,    rule in ipairs(metarule ) do
-		print("mesecon:rule2bit mesecon:cmpPos "..dump(findrule).." "..dump(rule))
+		--print("mesecon:rule2bit mesecon:cmpPos "..dump(findrule).." "..dump(rule))
 		if mesecon:cmpPos(findrule, rule) then
 			return m
 		end
 	end
 	end
 end
---ruletometa2
+
 function mesecon:rule2meta(findrule, allrules)
 	--get the metarule the rule is in, or allrules
-	print("mesecon:ruletometa2 "..dump(findrule).." "..dump(metarules))
+	--print("mesecon:ruletometa2 "..dump(findrule).." "..dump(metarules))
 
 	if allrules[1].x then
 		return allrules
@@ -109,7 +120,7 @@ else
 end
 
 function mesecon:getstate(nodename, states)
-	print("mesecon:getstate")
+	--print("mesecon:getstate")
 	for state, name in ipairs(states) do
 		if name == nodename then
 			return state
@@ -119,35 +130,33 @@ function mesecon:getstate(nodename, states)
 end
 
 function mesecon:getbinstate(nodename, states)
-	print("mesecon:getbinstate "..nodename.." "..dump(states))
+	--print("mesecon:getbinstate "..nodename.." "..dump(states))
 	return dec2bin(mesecon:getstate(nodename, states)-1)
 end
 
---is_metarule_on
-function mesecon:get_bit(binstate,bit)
-	print("is_metarule_on "..binstate.." "..bit)
+function mesecon:get_bit(binary,bit)
+	--print("get_bit "..binary.." "..bit)
 	bit = bit or 1
-	local c = binstate:len()-(bit-1)
-	return binstate:sub(c,c) == "1"
+	local c = binary:len()-(bit-1)
+	return binary:sub(c,c) == "1"
 end
 
---set_metarule
-function mesecon:set_bit(binstate,bit,value)
-	print("mesecon:set_metarule, "..binstate..", "..bit..", "..value)
+function mesecon:set_bit(binary,bit,value)
+	--print("mesecon:set_bit, "..binary..", "..bit..", "..value)
 	if value == "1" then
-		print("value = 1")
-		if not mesecon:get_bit(binstate,bit) then
-			print("not on")
-			return dec2bin(tonumber(binstate,2)+math.pow(2,bit-1))
+		--print("value = 1")
+		if not mesecon:get_bit(binary,bit) then
+			--print("not on")
+			return dec2bin(tonumber(binary,2)+math.pow(2,bit-1))
 		end
 	elseif value == "0" then
-		print("value = 0")
-		if mesecon:get_bit(binstate,bit) then
-			print("on")
-			return dec2bin(tonumber(binstate,2)-math.pow(2,bit-1))
+		--print("value = 0")
+		if mesecon:get_bit(binary,bit) then
+			--print("on")
+			return dec2bin(tonumber(binary,2)-math.pow(2,bit-1))
 		end
-end
-	return binstate
+	end
+	return binary
 	
 end
 
