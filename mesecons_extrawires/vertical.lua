@@ -35,7 +35,6 @@ local brules =
 local vertical_updatepos = function (pos)
 	local node = minetest.env:get_node(pos)
 	if minetest.registered_nodes[node.name].is_vertical_conductor then
-		print("vertical_updatepos addPosRule")
 		local node_above = minetest.env:get_node(mesecon:addPosRule(pos, vrules[1]))
 		local node_below = minetest.env:get_node(mesecon:addPosRule(pos, vrules[2]))
 		local namestate = minetest.registered_nodes[node.name].vertical_conductor_state
@@ -66,7 +65,6 @@ end
 
 local vertical_update = function (pos, node)
 	vertical_updatepos(pos) -- this one
-	print("vertical_update addPosRule")
 	vertical_updatepos(mesecon:addPosRule(pos, vrules[1])) -- above
 	vertical_updatepos(mesecon:addPosRule(pos, vrules[2])) -- below
 end

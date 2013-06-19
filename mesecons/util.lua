@@ -27,7 +27,6 @@ mesecon:invertRule(r)
 --]]
 
 function mesecon:flattenrules(allrules)
-	--print("mesecon:flattenrules")
 --[[
 	{
 		{
@@ -40,7 +39,6 @@ function mesecon:flattenrules(allrules)
 		},
 	}
 --]]
-	--print(dump(allrules))
 	if allrules[1] and
 	   allrules[1].x then
 		return allrules
@@ -64,17 +62,14 @@ function mesecon:flattenrules(allrules)
 end
 
 function mesecon:rule2bit(findrule, allrules)
-	--print("mesecon:rule2bit")
 	--get the bit of the metarule the rule is in, or bit 1
 	if (allrules[1] and
 	    allrules[1].x) or
 	    not findrule then
-		--print("mesecon:rule2bit ERROR")
 		return 1
 	end
 	for m,metarule in ipairs( allrules) do
 	for _,    rule in ipairs(metarule ) do
-		--print("mesecon:rule2bit mesecon:cmpPos "..dump(findrule).." "..dump(rule))
 		if mesecon:cmpPos(findrule, rule) then
 			return m
 		end
@@ -87,19 +82,16 @@ function mesecon:rule2meta(findrule, allrules)
 	print("mesecon:rule2meta "..dump(findrule).." "..dump(allrules))
 
 	if allrules[1].x then
-		print("mesecon:rule2meta early return")
 		return allrules
 	end
 
 	if not(findrule) then
-		print("mesecon:rule2meta no findrule")
 		return mesecon:flattenrules(allrules)
 	end
 
 	for m, metarule in ipairs( allrules) do
 	for _,     rule in ipairs(metarule ) do
 		if mesecon:cmpPos(findrule, rule) then
-			print("mesecon:rule2meta return "..dump(metarule))
 			return metarule
 		end
 	end
@@ -125,7 +117,6 @@ else
 end
 
 function mesecon:getstate(nodename, states)
-	--print("mesecon:getstate")
 	for state, name in ipairs(states) do
 		if name == nodename then
 			return state
@@ -135,29 +126,22 @@ function mesecon:getstate(nodename, states)
 end
 
 function mesecon:getbinstate(nodename, states)
-	--print("mesecon:getbinstate "..nodename.." "..dump(states))
 	return dec2bin(mesecon:getstate(nodename, states)-1)
 end
 
 function mesecon:get_bit(binary,bit)
-	--print("get_bit "..binary.." "..bit)
 	bit = bit or 1
 	local c = binary:len()-(bit-1)
 	return binary:sub(c,c) == "1"
 end
 
 function mesecon:set_bit(binary,bit,value)
-	--print("mesecon:set_bit, "..binary..", "..bit..", "..value)
 	if value == "1" then
-		--print("value = 1")
 		if not mesecon:get_bit(binary,bit) then
-			--print("not on")
 			return dec2bin(tonumber(binary,2)+math.pow(2,bit-1))
 		end
 	elseif value == "0" then
-		--print("value = 0")
 		if mesecon:get_bit(binary,bit) then
-			--print("on")
 			return dec2bin(tonumber(binary,2)-math.pow(2,bit-1))
 		end
 	end
@@ -170,12 +154,10 @@ function mesecon:invertRule(r)
 end
 
 function mesecon:addPosRule(p, r)
-	--print("mesecon:addPosRule")
 	return {x = p.x + r.x, y = p.y + r.y, z = p.z + r.z}
 end
 
 function mesecon:cmpPos(p1, p2)
-	--print("mesecon:cmpPos")
 	return (p1.x == p2.x and p1.y == p2.y and p1.z == p2.z)
 end
 

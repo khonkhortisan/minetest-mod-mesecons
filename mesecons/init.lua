@@ -102,15 +102,12 @@ dofile(minetest.get_modpath("mesecons").."/legacy.lua");
 -- these are the only functions you need to remember
 
 function mesecon:receptor_on_i(pos, rules)
-	print("mesecon:receptor_on_i")
 	rules = rules or mesecon.rules.default
 
 	for _, rule in ipairs(mesecon:flattenrules(rules)) do
-		--print("mesecon:receptor_on_i addPosRule")
 		local np = mesecon:addPosRule(pos, rule)
 		local link, rulename = mesecon:rules_link(pos, np, rules)
 		if link then
-			--print("mesecon:receptor_on_i mesecon:turnon")
 			mesecon:turnon(np, rulename)
 		end
 	end
@@ -126,20 +123,15 @@ function mesecon:receptor_on(pos, rules)
 end
 
 function mesecon:receptor_off_i(pos, rules)
-	print("mesecon:receptor_off_i")
 	rules = rules or mesecon.rules.default
 
 	for _, rule in ipairs(mesecon:flattenrules(rules)) do
-		--print("mesecon:receptor_off_i addPosRule")
 		local np = mesecon:addPosRule(pos, rule)
 		local link, rulename = mesecon:rules_link(pos, np, rules)
 		if link then
-			print("mesecon:receptor_off_i link")
 			if not mesecon:connected_to_receptor(np, mesecon:invertRule(rule)) then
-				print("mesecon:receptor_off_i mesecon:turnoff")
 				mesecon:turnoff(np, rulename)
 			else
-				print("mesecon:receptor_off_i mesecon:changesignal")
 				mesecon:changesignal(np, minetest.env:get_node(np), rulename, mesecon.state.off)
 			end
 		end
