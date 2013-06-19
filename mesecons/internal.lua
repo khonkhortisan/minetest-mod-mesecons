@@ -417,13 +417,14 @@ function mesecon:turnon(pos, rulename)
 
 		if not rulename then
 			for _, rule in ipairs(mesecon:flattenrules(rules)) do
-				if not mesecon:is_powered(pos, rule) then
+				if mesecon:connected_to_receptor(pos, rule) then
 					mesecon:turnon(pos, rule)
 				end
 			end
-		else
-			minetest.env:add_node(pos, {name = mesecon:get_conductor_on(node.name, rulename), param2 = node.param2})
+			return
 		end
+
+		minetest.env:add_node(pos, {name = mesecon:get_conductor_on(node.name, rulename), param2 = node.param2})
 
 		for _, rule in ipairs(mesecon:rule2meta(rulename, rules)) do
 			local np = mesecon:addPosRule(pos, rule)
@@ -447,6 +448,7 @@ function mesecon:turnoff(pos, rulename)
 	if mesecon:is_conductor_on(node.name, rulename) then
 		local rules = mesecon:conductor_get_rules(node)
 
+		--[[
 		if not rulename then
 			for _, rule in ipairs(mesecon:flattenrules(rules)) do
 				if mesecon:is_powered(pos, rule) then
@@ -454,8 +456,9 @@ function mesecon:turnoff(pos, rulename)
 				end
 			end
 		else
+		--]]
 			minetest.env:add_node(pos, {name = mesecon:get_conductor_off(node.name, rulename), param2 = node.param2})
-		end
+		--end
 
 		for _, rule in ipairs(mesecon:rule2meta(rulename, rules)) do
 			local np = mesecon:addPosRule(pos, rule)
