@@ -322,7 +322,7 @@ function mesecon:is_conductor_on(nodename, rulename)
 			return mesecon:get_bit(binstate, bit)
 		end
 	end
-	return false
+	return false -- not turn-off-able
 end
 
 function mesecon:is_conductor_off(nodename, rulename)
@@ -342,7 +342,7 @@ function mesecon:is_conductor_off(nodename, rulename)
 			return not mesecon:get_bit(binstate, bit)
 		end
 	end
-	return false
+	return false -- not turn-on-able
 end
 
 function mesecon:is_conductor(nodename)
@@ -407,6 +407,7 @@ function mesecon:get_conductor_off(onstate, rulename)
 end
 
 function mesecon:conductor_get_rules(node)
+	print("mesecon:conductor_get_rules "..node.name)
 	local conductor = mesecon:get_conductor(node.name)
 	if conductor then
 		local rules = conductor.rules
@@ -416,6 +417,7 @@ function mesecon:conductor_get_rules(node)
 			return rules
 		end
 	end
+	--print("return mesecon.rules.default")
 	return mesecon.rules.default
 end
 
@@ -520,32 +522,35 @@ function mesecon:turnoff(pos, rulename)
 	end
 end
 
-
-function mesecon:connected_to_receptor(pos)
-	print("mesecon:connected_to_receptor")
+--needs to respect metarules
+function mesecon:connected_to_receptor(pos, rulename)
+	print("mesecon:connected_to_receptor "..dump(pos).." "..dump(rulename))
 	local node = minetest.env:get_node(pos)
 
 	-- Check if conductors around are connected
 	local rules = mesecon:get_any_inputrules(node)
+	--print("mesecon:connected_to_receptor rules "..dump(rules))
 	if not rules then return false end
 	--print("mesecon:connected_to_receptor mesecon:flattenrules")
-	for _, rule in ipairs(mesecon:flattenrules(rules)) do
-		--print("mesecon:connected_to_receptor addPosRule")
+	for _, rule in ipairs(mesecon:rule2meta(rulename, rules)) do
+		--print("mesecon:connected_to_receptor rule "..dump(rule))
 		local np = mesecon:addPosRule(pos, rule)
 		if mesecon:rules_link(np, pos) then
-			if mesecon:find_receptor_on(np, {}) then
+			print("mesecon:connected_to_receptor link "..dump(rule))
+			if mesecon:find_receptor_on(np, {}, mesecon:invertRule(rule)) then
+				print("mesecon:connected_to_receptor true")
 				return true
 			end
 		end
 	end
-
+	print("mesecon:connected_to_receptor false")
 	return false
 end
 
-function mesecon:find_receptor_on(pos, checked)
+function mesecon:find_receptor_on(pos, checked, rulename)
 	-- find out if node has already been checked (to prevent from endless loop)
-	--print("mesecon:find_receptor_on mesecon:flattenrules")
-	for _, cp in ipairs(mesecon:flattenrules(checked)) do
+	print("mesecon:find_receptor_on")
+	for _, cp in ipairs(checked) do
 		--print("mesecon:find_receptor_on mesecon:cmpPos")
 		if mesecon:cmpPos(cp, pos) then
 			return false, checked
@@ -563,11 +568,11 @@ function mesecon:find_receptor_on(pos, checked)
 	if mesecon:is_conductor(node.name) then
 		local rules = mesecon:conductor_get_rules(node)
 		--print("mesecon:find_receptor_on mesecon:flattenrules 2")
-		for _, rule in ipairs(mesecon:flattenrules(rules)) do
+		for _, rule in ipairs(mesecon:rule2meta(rulename, rules)) do
 			--print("mesecon:find_receptor_on addPosRule")
 			local np = mesecon:addPosRule(pos, rule)
 			if mesecon:rules_link(np, pos) then
-				if mesecon:find_receptor_on(np, checked) then
+				if mesecon:find_receptor_on(np, checked, mesecon:invertRule(rule)) then
 					return true
 				end
 			end
@@ -578,6 +583,7 @@ function mesecon:find_receptor_on(pos, checked)
 end
 
 function mesecon:rules_link(output, input, dug_outputrules) --output/input are positions (outputrules optional, used if node has been dug), second return value: the name of the affected input rule
+	--print("mesecon:rules_link")
 	local outputnode = minetest.env:get_node(output)
 	local inputnode = minetest.env:get_node(input)
 	local outputrules = dug_outputrules or mesecon:get_any_outputrules (outputnode)

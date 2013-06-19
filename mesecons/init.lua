@@ -134,9 +134,12 @@ function mesecon:receptor_off_i(pos, rules)
 		local np = mesecon:addPosRule(pos, rule)
 		local link, rulename = mesecon:rules_link(pos, np, rules)
 		if link then
-			if not mesecon:connected_to_receptor(np) then
+			print("mesecon:receptor_off_i link")
+			if not mesecon:connected_to_receptor(np, mesecon:invertRule(rule)) then
+				print("mesecon:receptor_off_i mesecon:turnoff")
 				mesecon:turnoff(np, rulename)
 			else
+				print("mesecon:receptor_off_i mesecon:changesignal")
 				mesecon:changesignal(np, minetest.env:get_node(np), rulename, mesecon.state.off)
 			end
 		end

@@ -84,19 +84,22 @@ end
 
 function mesecon:rule2meta(findrule, allrules)
 	--get the metarule the rule is in, or allrules
-	--print("mesecon:ruletometa2 "..dump(findrule).." "..dump(metarules))
+	print("mesecon:rule2meta "..dump(findrule).." "..dump(allrules))
 
 	if allrules[1].x then
+		print("mesecon:rule2meta early return")
 		return allrules
 	end
 
 	if not(findrule) then
+		print("mesecon:rule2meta no findrule")
 		return mesecon:flattenrules(allrules)
 	end
 
 	for m, metarule in ipairs( allrules) do
 	for _,     rule in ipairs(metarule ) do
 		if mesecon:cmpPos(findrule, rule) then
+			print("mesecon:rule2meta return "..dump(metarule))
 			return metarule
 		end
 	end
